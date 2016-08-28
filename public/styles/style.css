@@ -1,0 +1,14 @@
+.leaflet-container {
+    height: 500px;
+    width: 100%;
+}
+
+.mapContainer {
+    float: left;
+    width: 80%;
+}
+
+.taskContainer {
+    margin-left: 80%;
+    width: 20%;
+}
