@@ -1,4 +1,5 @@
 import React from "react";
+import { Button, ButtonGroup } from 'react-bootstrap';
 
 export default class Task extends React.Component {
     handleNewOrder() {
@@ -17,13 +18,14 @@ export default class Task extends React.Component {
             toPntCoords = (<p> {this.props.toPnt.lat}  {this.props.toPnt.lng}</p>);
         }
         return (<div>
-            <button disabled={this.props.pickFromPnt} onClick={this.props.pickFromPntCb}>Pick origin point</button>
+            <ButtonGroup>
+                <Button active={this.props.pickFromPnt} onClick={this.props.pickFromPntCb}>Pick origin point</Button>
+                <Button active={this.props.pickToPnt} onClick={this.props.pickToPntCb}>Pick destination point</Button>
+            </ButtonGroup>
             {fromPntCoords}
             <br/>
-            <button disabled={this.props.pickToPnt} onClick={this.props.pickToPntCb}>Pick destination point</button>
             {toPntCoords}
-
-            <button onClick={::this.handleNewOrder}>Submit new order</button>
+            <Button className="btn-success" onClick={::this.handleNewOrder}>Submit new order</Button>
         </div>);
     }
 }

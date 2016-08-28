@@ -3,6 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Map from './Map.jsx'
 import Task from './Task.jsx'
+import { Button, Panel } from 'react-bootstrap';
 
 let initialState = {
     pick: false,
@@ -51,9 +52,9 @@ export default class App extends React.Component {
                              pickTo={this.state.pickToPnt}
                              clickCallback={::this.handleMapClick} />
                     </div>
-                    <div className="taskContainer">
-                        <button onClick={::this.handleCreateOrder}><h1>New order</h1></button>
-                        <p>{this.state.pick ? "Choose origin and dest." : null}</p>
+                    <Panel className="taskContainer">
+                        <Button className="btn-primary btn-lg" onClick={::this.handleCreateOrder}>New order</Button>
+                        <div>{this.state.pick ? "Choose origin and dest." : null}</div>
 
                         <Task pickToPntCb={::this.handlePickToPnt}
                               pickFromPntCb={::this.handlePickFromPnt}
@@ -63,7 +64,7 @@ export default class App extends React.Component {
                               pickFromPnt={this.state.pickFromPnt}
                               pickToPnt={this.state.pickToPnt}
                         />
-                    </div>
+                    </Panel>
                 </div>);
     }
 }
