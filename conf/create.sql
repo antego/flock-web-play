@@ -1,0 +1,12 @@
+create table if not exists ORDER_TBL (id VARCHAR, title VARCHAR , lat VARCHAR , lng VARCHAR );
+delete from ORDER_TBL;
+insert into ORDER_TBL VALUES ('1', 'title1', '40.1', '40.2');
+insert into ORDER_TBL VALUES ('2', 'title2', '41.1', '41.2');
+insert into ORDER_TBL VALUES ('3', 'title3', '42.1', '42.2');
+insert into ORDER_TBL VALUES ('4', 'title4', '43.1', '43.2');
+insert into ORDER_TBL VALUES ('5', 'title5', '44.1', '44.2');
+insert into ORDER_TBL VALUES ('6', 'title6', '45.1', '45.2');
+insert into ORDER_TBL VALUES ('7', 'title7', '46.1', '46.2');
+insert into ORDER_TBL VALUES ('8', 'title8', '47.1', '47.2');
+insert into ORDER_TBL VALUES ('9', 'title9', '48.1', '48.2');
+insert into ORDER_TBL VALUES ('10', 'title10', '49.1', '49.2');
