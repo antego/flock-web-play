@@ -1,10 +1,12 @@
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import models.Courier;
 import models.Order;
 import org.junit.*;
 
 import play.Application;
 import play.mvc.*;
+import services.CourierService;
 import services.OrderService;
 
 import java.io.IOException;
@@ -13,9 +15,9 @@ import java.util.*;
 import static play.test.Helpers.*;
 import static org.junit.Assert.*;
 
-public class IntegrationTest {
-    private Application application;
+public class OrderIT {
     private final ObjectMapper mapper = new ObjectMapper();
+    private Application application;
 
     @Before
     public void setupApplication() {
@@ -29,14 +31,28 @@ public class IntegrationTest {
 
     @Test
     public void testPost() {
+        Courier courier = new Courier();
+        courier.setName("Foo");
+        CourierService courierService = application.injector().instanceOf(CourierService.class);
+        String courierId = courierService.create(courier);
+
         Order order = new Order();
         order.setId("testId");
         order.setLat("lat");
         order.setLng("lng");
         order.setDescription("title");
+        order.setCourier(courier);
 
         Http.RequestBuilder request = new Http.RequestBuilder().method("POST")
-                .bodyText("{\"lat\": \"lat\", \"lng\": \"lng\", \"description\": \"title\"}\n")
+                .bodyText("{\n" +
+                        "  \"lat\": \"lat\",\n" +
+                        "  \"lng\": \"lng\",\n" +
+                        "  \"description\": \"title\",\n" +
+                        "  \"courier\": {\n" +
+                        "    \"name\": \"Foo\",\n" +
+                        "    \"id\": \"" + courierId + "\"\n" +
+                        "  }\n" +
+                        "}\n")
                 .header("Content-Type", "application/json")
                 .uri("/orders");
 

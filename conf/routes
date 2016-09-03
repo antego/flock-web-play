@@ -26,4 +26,14 @@ PUT           /orders/:id        controllers.OrderController.update(id: String)
 
 DELETE        /orders/:id        controllers.OrderController.delete(id: String)
 
+GET           /couriers        controllers.CourierController.getAll()
+
+GET           /couriers/:id        controllers.CourierController.get(id: String)
+
+POST          /couriers            controllers.CourierController.create()
+
+PUT           /couriers/:id        controllers.CourierController.update(id: String)
+
+DELETE        /couriers/:id        controllers.CourierController.delete(id: String)
+
 GET           /*file             controllers.Assets.at(path="/public", file)

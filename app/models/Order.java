@@ -1,6 +1,9 @@
 package models;
 
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
@@ -9,6 +12,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "ORDER_TBL")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Order {
     @Id
     private String id;
@@ -18,38 +22,38 @@ public class Order {
     private String lat;
 
     private String lng;
+    @OneToOne
+    private Courier courier;
 
-    private String courier;
+    private String fromAddress;
 
-    private String fromAdress;
-
-    private String toAdress;
+    private String toAddress;
 
     private String subject;
 
-    public String getCourier() {
+    public Courier getCourier() {
 
         return courier;
     }
 
-    public void setCourier(String courier) {
+    public void setCourier(Courier courier) {
         this.courier = courier;
     }
 
-    public String getFromAdress() {
-        return fromAdress;
+    public String getFromAddress() {
+        return fromAddress;
     }
 
-    public void setFromAdress(String fromAdress) {
-        this.fromAdress = fromAdress;
+    public void setFromAddress(String fromAddress) {
+        this.fromAddress = fromAddress;
     }
 
-    public String getToAdress() {
-        return toAdress;
+    public String getToAddress() {
+        return toAddress;
     }
 
-    public void setToAdress(String toAdress) {
-        this.toAdress = toAdress;
+    public void setToAddress(String toAddress) {
+        this.toAddress = toAddress;
     }
 
     public String getSubject() {
@@ -104,8 +108,8 @@ public class Order {
         if (lat != null ? !lat.equals(order.lat) : order.lat != null) return false;
         if (lng != null ? !lng.equals(order.lng) : order.lng != null) return false;
         if (courier != null ? !courier.equals(order.courier) : order.courier != null) return false;
-        if (fromAdress != null ? !fromAdress.equals(order.fromAdress) : order.fromAdress != null) return false;
-        if (toAdress != null ? !toAdress.equals(order.toAdress) : order.toAdress != null) return false;
+        if (fromAddress != null ? !fromAddress.equals(order.fromAddress) : order.fromAddress != null) return false;
+        if (toAddress != null ? !toAddress.equals(order.toAddress) : order.toAddress != null) return false;
         return subject != null ? subject.equals(order.subject) : order.subject == null;
 
     }
@@ -117,8 +121,8 @@ public class Order {
         result = 31 * result + (lat != null ? lat.hashCode() : 0);
         result = 31 * result + (lng != null ? lng.hashCode() : 0);
         result = 31 * result + (courier != null ? courier.hashCode() : 0);
-        result = 31 * result + (fromAdress != null ? fromAdress.hashCode() : 0);
-        result = 31 * result + (toAdress != null ? toAdress.hashCode() : 0);
+        result = 31 * result + (fromAddress != null ? fromAddress.hashCode() : 0);
+        result = 31 * result + (toAddress != null ? toAddress.hashCode() : 0);
         result = 31 * result + (subject != null ? subject.hashCode() : 0);
         return result;
     }
