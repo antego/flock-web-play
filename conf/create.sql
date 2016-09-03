@@ -1,4 +1,4 @@
-create table if not exists ORDER_TBL (id VARCHAR, title VARCHAR , lat VARCHAR , lng VARCHAR );
+create table if not exists ORDER_TBL (id VARCHAR, description VARCHAR , lat VARCHAR , lng VARCHAR );
 delete from ORDER_TBL;
 insert into ORDER_TBL VALUES ('1', 'title1', '40.1', '40.2');
 insert into ORDER_TBL VALUES ('2', 'title2', '41.1', '41.2');

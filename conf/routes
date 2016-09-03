@@ -16,7 +16,7 @@
 GET           /                  controllers.Assets.at(path="/public", file = "/index.html")
 
 
-GET           /orders/all        controllers.OrderController.getAll()
+GET           /orders        controllers.OrderController.getAll()
 
 GET           /orders/:id        controllers.OrderController.get(id: String)
 

@@ -14,6 +14,7 @@ import services.OrderService;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -30,29 +31,30 @@ public class OrderController extends Controller {
         this.mapper = mapper;
     }
 
-    @Transactional(readOnly = true)
     public Result getAll() {
         return ok(Json.toJson(orderService.getAll()));
     }
 
-    @Transactional(readOnly = true)
     public Result get(String id) {
-        return ok(Json.toJson(orderService.get(id)));
+        Optional<Order> order = orderService.get(id);
+        if (order.isPresent()) {
+            return ok(Json.toJson(order));
+        } else {
+            return notFound();
+        }
     }
 
     //todo think about answer
     @BodyParser.Of(BodyParser.Json.class)
-    @Transactional
     public Result create() {
         try {
-            return ok(orderService.create(mapper.treeToValue(request().body().asJson(), Order.class)));
+            return created(orderService.create(mapper.treeToValue(request().body().asJson(), Order.class)));
         } catch (JsonProcessingException e) {
             return badRequest(e.toString());
         }
     }
 
     @BodyParser.Of(BodyParser.Json.class)
-    @Transactional
     public Result update(String id) {
         try {
             orderService.update(mapper.treeToValue(request().body().asJson(), Order.class), id);
@@ -62,9 +64,11 @@ public class OrderController extends Controller {
         return ok();
     }
 
-    @Transactional
     public Result delete(String id) {
-        orderService.delete(id);
+        int count = orderService.delete(id);
+        if (count == 0) {
+            return notFound();
+        }
         return ok();
     }
 }
