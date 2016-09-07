@@ -1,3 +1,4 @@
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import models.Courier;
@@ -30,29 +31,17 @@ public class OrderIT {
     }
 
     @Test
-    public void testPost() {
-        Courier courier = new Courier();
-        courier.setName("Foo");
+    public void testPost() throws JsonProcessingException {
+        Courier courier = TestObjectFactory.newCourier();
         CourierService courierService = application.injector().instanceOf(CourierService.class);
         String courierId = courierService.create(courier);
+        courier.setId(courierId);
 
-        Order order = new Order();
-        order.setId("testId");
-        order.setLat("lat");
-        order.setLng("lng");
-        order.setDescription("title");
+        Order order = TestObjectFactory.newOrder();
         order.setCourier(courier);
 
         Http.RequestBuilder request = new Http.RequestBuilder().method("POST")
-                .bodyText("{\n" +
-                        "  \"lat\": \"lat\",\n" +
-                        "  \"lng\": \"lng\",\n" +
-                        "  \"description\": \"title\",\n" +
-                        "  \"courier\": {\n" +
-                        "    \"name\": \"Foo\",\n" +
-                        "    \"id\": \"" + courierId + "\"\n" +
-                        "  }\n" +
-                        "}\n")
+                .bodyText(mapper.writeValueAsString(order))
                 .header("Content-Type", "application/json")
                 .uri("/orders");
 
@@ -70,11 +59,7 @@ public class OrderIT {
 
     @Test
     public void testPut() {
-        Order order = new Order();
-        order.setId("testId");
-        order.setLat("lat");
-        order.setLng("lng");
-        order.setDescription("title");
+        Order order = TestObjectFactory.newOrder();
 
         OrderService orderService = application.injector().instanceOf(OrderService.class);
         orderService.create(order);
@@ -90,17 +75,8 @@ public class OrderIT {
 
     @Test
     public void testGetAll() throws IOException {
-        Order order1 = new Order();
-        order1.setId("testId1");
-        order1.setLat("lat");
-        order1.setLng("lng");
-        order1.setDescription("title");
-
-        Order order2 = new Order();
-        order2.setId("testId1");
-        order2.setLat("lat");
-        order2.setLng("lng");
-        order2.setDescription("title");
+        Order order1 = TestObjectFactory.newOrder();
+        Order order2 = TestObjectFactory.newOrder();
 
         OrderService orderService = application.injector().instanceOf(OrderService.class);
         orderService.create(order1);
@@ -118,11 +94,7 @@ public class OrderIT {
 
     @Test
     public void testGet() throws IOException {
-        Order order1 = new Order();
-        order1.setId("testId1");
-        order1.setLat("lat");
-        order1.setLng("lng");
-        order1.setDescription("title");
+        Order order1 = TestObjectFactory.newOrder();
 
         OrderService orderService = application.injector().instanceOf(OrderService.class);
         String id = orderService.create(order1);
@@ -138,11 +110,7 @@ public class OrderIT {
 
     @Test
     public void testRemove() throws IOException {
-        Order order1 = new Order();
-        order1.setId("testId1");
-        order1.setLat("lat");
-        order1.setLng("lng");
-        order1.setDescription("title");
+        Order order1 = TestObjectFactory.newOrder();
 
         OrderService orderService = application.injector().instanceOf(OrderService.class);
         String id = orderService.create(order1);

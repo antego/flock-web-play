@@ -2,8 +2,11 @@ import 'babel-polyfill'
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Map from './Map.jsx'
-import Task from './Task.jsx'
+import Create from './Create.jsx';
 import { Button, Panel } from 'react-bootstrap';
+import { Provider } from 'react-redux';
+import store from './store'
+import * as act from "./actions/actions"
 
 let initialState = {
     pick: false,
@@ -13,6 +16,14 @@ let initialState = {
     toPnt: null,
 };
 
+@connect((store) => {
+    return {
+        fromPoint: store.fromPoint,
+        toPoint: store.toPoint,
+        pickMode: store.pickMode,
+        newOrder: store.newOrder
+    };
+})
 export default class App extends React.Component {
 
     constructor() {
@@ -21,6 +32,7 @@ export default class App extends React.Component {
     }
 
     handleMapClick(e){
+        this.props.dispatch(act.mapClickFrom());
         if (this.state.pickFromPnt) {
             this.setState({fromPnt: e.latlng})
         } else if (this.state.pickToPnt) {
@@ -29,7 +41,7 @@ export default class App extends React.Component {
     }
 
     handleCreateOrder() {
-        this.setState({pick: true, pickFromPnt: true})
+        this.props.dispatch(act.setPickToMode())
     }
 
     handleSubmitOrder(order) {
@@ -55,18 +67,12 @@ export default class App extends React.Component {
                     <Panel className="taskContainer">
                         <Button className="btn-primary btn-lg" onClick={::this.handleCreateOrder}>New order</Button>
                         <div>{this.state.pick ? "Choose origin and dest." : null}</div>
-
-                        <Task pickToPntCb={::this.handlePickToPnt}
-                              pickFromPntCb={::this.handlePickFromPnt}
-                                submitOrder={::this.handleSubmitOrder}
-                              fromPnt={this.state.fromPnt}
-                              toPnt={this.state.toPnt}
-                              pickFromPnt={this.state.pickFromPnt}
-                              pickToPnt={this.state.pickToPnt}
-                        />
+                        <Create/>
                     </Panel>
                 </div>);
     }
 }
 
-ReactDOM.render(<App/>, document.getElementById('app'));
+ReactDOM.render(<Provider store={store}>
+                    <App/>
+                </Provider>, document.getElementById('app'));
