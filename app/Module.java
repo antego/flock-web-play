@@ -1,7 +1,6 @@
 import com.google.inject.AbstractModule;
-import java.time.Clock;
 
-import services.OrderService;
+import services.GroupService;
 
 /**
  * This class is a Guice module that tells Guice how to bind several
@@ -17,7 +16,7 @@ public class Module extends AbstractModule {
 
     @Override
     public void configure() {
-        bind(OrderService.class).asEagerSingleton();
+        bind(GroupService.class).asEagerSingleton();
     }
 
 }
