@@ -47,7 +47,7 @@ public class UserController extends Controller {
     public Result create() {
         try {
             User user = mapper.treeToValue(request().body().asJson(), User.class);
-            if (user.getGroups() != null) {
+            if (user.getGroups() != null && !user.getGroups().isEmpty()) {
                 return badRequest("Can't create courier with order. Use PUT to assign order to courier.");
             }
             userService.create(user);
@@ -79,7 +79,7 @@ public class UserController extends Controller {
 
     private void findGroupsForUser(User user) throws IllegalArgumentException {
         if (user.getGroups() != null) {
-            List<Group> newGroups = new ArrayList<>();
+            Set<Group> newGroups = new HashSet<>();
             for (Group rawGroup : user.getGroups()) {
                 if (rawGroup != null && !"".equals(rawGroup.getName())) {
                     Group group = groupService.get(rawGroup.getName()).get();

@@ -23,7 +23,6 @@ public class UserService {
     public List<User> getAll() {
         return api.withTransaction(em -> {
             List<User> list = em.createQuery("from User o", User.class).getResultList();
-            list.forEach(Hibernate::initialize);
             return list;
         });
     }
@@ -36,7 +35,7 @@ public class UserService {
     }
 
     public void create(User user) throws IllegalArgumentException {
-        if (user.getGroups() != null) {
+        if (user.getGroups() != null && !user.getGroups().isEmpty()) {
             throw new IllegalArgumentException("Can't create user with group");
         }
         api.withTransaction(em -> {

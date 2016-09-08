@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -14,7 +15,7 @@ public class User {
     @Id
     private String name;
     @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
-    private List<Group> groups;
+    private Set<Group> groups = new HashSet<>();
 
     private String lat;
 
@@ -28,11 +29,11 @@ public class User {
         this.name = name;
     }
 
-    public List<Group> getGroups() {
+    public Set<Group> getGroups() {
         return groups;
     }
 
-    public void setGroups(List<Group> groups) {
+    public void setGroups(Set<Group> groups) {
         this.groups = groups;
     }
 

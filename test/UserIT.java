@@ -14,6 +14,7 @@ import services.GroupService;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -46,7 +47,7 @@ public class UserIT {
         groupService.create(group2);
 
         User user = TestObjectFactory.newUser();
-        List<Group> groups = new ArrayList<>();
+        Set<Group> groups = new HashSet<>();
         groups.add(group1);
         groups.add(group2);
         user.setGroups(groups);
@@ -80,10 +81,14 @@ public class UserIT {
 
         Group group1 = TestObjectFactory.newGroup();
         Group group2 = TestObjectFactory.newGroup();
-        user.setGroups(getPersistedGroups(
-                groupService,
-                group1,
-                group2));
+        group1.getUsers().add(user);
+        group2.getUsers().add(user);
+        groupService.create(group1);
+        groupService.create(group2);
+
+
+        Set<Group> groups = new HashSet<>(Arrays.asList(group1, group2));
+        user.setGroups(groups);
 
         assertEquals(2, groupService.getAll().size());
 
@@ -110,9 +115,9 @@ public class UserIT {
         Result result = route(application, request);
 
         assertEquals(200, result.status());
-        User[] couriers = mapper.readValue(contentAsBytes(result).toArray(), User[].class);
-        assertTrue(Arrays.asList(couriers).contains(user1));
-        assertTrue(Arrays.asList(couriers).contains(user2));
+        User[] users = mapper.readValue(contentAsBytes(result).toArray(), User[].class);
+        assertTrue(Stream.of(users).anyMatch(u -> u.getName().equals(user1.getName())));
+        assertTrue(Stream.of(users).anyMatch(u -> u.getName().equals(user2.getName())));
     }
 
     @Test
@@ -146,8 +151,8 @@ public class UserIT {
         assertFalse(userService.get(user.getName()).isPresent());
     }
 
-    private List<Group> getPersistedGroups(GroupService service, Group... groups) {
-        List<Group> groupList = new ArrayList<>();
+    private Set<Group> getPersistedGroups(GroupService service, Group... groups) {
+        Set<Group> groupList = new HashSet<>();
         for (Group group : groups) {
             service.create(group);
             groupList.add(group);

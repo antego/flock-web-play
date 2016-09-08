@@ -36,7 +36,7 @@ public class GroupIT {
         UserService userService = application.injector().instanceOf(UserService.class);
         User user1 = TestObjectFactory.newUser();
         User user2 = TestObjectFactory.newUser();
-        List<User> users = getPersistedUsers(userService, user1, user2);
+        Set<User> users = getPersistedUsers(userService, user1, user2);
 
         Group group = TestObjectFactory.newGroup();
         group.setUsers(users);
@@ -67,7 +67,7 @@ public class GroupIT {
         UserService userService = application.injector().instanceOf(UserService.class);
         User user1 = TestObjectFactory.newUser();
         User user2 = TestObjectFactory.newUser();
-        List<User> users = getPersistedUsers(userService, user1, user2);
+        Set<User> users = getPersistedUsers(userService, user1, user2);
 
         group.setUsers(users);
         Http.RequestBuilder request = new Http.RequestBuilder().method("PUT")
@@ -128,8 +128,8 @@ public class GroupIT {
         assertFalse(groupService.get(group.getName()).isPresent());
     }
 
-    private List<User> getPersistedUsers(UserService service, User... users) {
-        List<User> userSet = new ArrayList<>();
+    private Set<User> getPersistedUsers(UserService service, User... users) {
+        Set<User> userSet = new HashSet<>();
         for (User user : users) {
             service.create(user);
             userSet.add(user);

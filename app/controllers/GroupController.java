@@ -77,7 +77,7 @@ public class GroupController extends Controller {
 
     private void findUsersForGroup(Group group) throws IllegalArgumentException {
         if (group.getUsers() != null) {
-            List<User> newUsers = new ArrayList<>();
+            Set<User> newUsers = new HashSet<>();
             for (User rawUser : group.getUsers()) {
                 if (rawUser != null && !"".equals(rawUser.getName())) {
                     User user = userService.get(rawUser.getName()).get();
