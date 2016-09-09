@@ -2,8 +2,10 @@ package controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Charsets;
 import models.User;
 import models.Group;
+import play.http.HttpEntity;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
@@ -47,6 +49,17 @@ public class GroupController extends Controller {
     public Result create() {
         try {
             Group group = mapper.treeToValue(request().body().asJson(), Group.class);
+            if (!userService.get(group.getCreatedBy().getName()).isPresent()) {
+                return new Result(422, HttpEntity.fromString("CreatedBy must be specified",
+                        Charsets.UTF_8.toString()));
+            }
+            if (group.getUsers() == null ||
+                    !group.getUsers().stream().anyMatch(u ->
+                            group.getCreatedBy().getName().equals(u.getName()))) {
+                return new Result(422,
+                        HttpEntity.fromString("Group creator must be in group's users",
+                                Charsets.UTF_8.toString()));
+            }
             findUsersForGroup(group);
             groupService.create(group);
             return created();
@@ -60,6 +73,11 @@ public class GroupController extends Controller {
         try {
             Group group = mapper.treeToValue(request().body().asJson(), Group.class);
             findUsersForGroup(group);
+            if (!group.getUsers().stream()
+                    .anyMatch(u -> group.getCreatedBy().getName().equals(u.getName()))) {
+                groupService.delete(group.getName());
+                return ok();
+            }
             groupService.update(group);
         } catch (JsonProcessingException e) {
             return badRequest(e.toString());
@@ -83,7 +101,7 @@ public class GroupController extends Controller {
                     User user = userService.get(rawUser.getName()).get();
                     newUsers.add(user);
                 } else {
-                    throw new IllegalArgumentException("Order ID must be specified");
+                    throw new IllegalArgumentException("User name must be specified");
                 }
             }
             group.setUsers(newUsers);

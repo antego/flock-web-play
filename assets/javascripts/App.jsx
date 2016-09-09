@@ -8,29 +8,8 @@ import { Provider } from 'react-redux';
 import store from './store'
 import * as act from "./actions/actions"
 
-let initialState = {
-    pick: false,
-    pickFromPnt: false,
-    pickToPnt: false,
-    fromPnt: null,
-    toPnt: null,
-};
 
-@connect((store) => {
-    return {
-        fromPoint: store.fromPoint,
-        toPoint: store.toPoint,
-        pickMode: store.pickMode,
-        newOrder: store.newOrder
-    };
-})
 export default class App extends React.Component {
-
-    constructor() {
-        super();
-        this.state = initialState;
-    }
-
     handleMapClick(e){
         this.props.dispatch(act.mapClickFrom());
         if (this.state.pickFromPnt) {
@@ -59,6 +38,7 @@ export default class App extends React.Component {
 
     render() {
         return (<div>
+
                     <div className="mapContainer">
                         <Map pickFrom={this.state.pickFromPnt}
                              pickTo={this.state.pickToPnt}

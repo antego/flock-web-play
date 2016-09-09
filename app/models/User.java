@@ -21,6 +21,16 @@ public class User {
 
     private String lng;
 
+    private String lastActionTime;
+
+    public String getLastActionTime() {
+        return lastActionTime;
+    }
+
+    public void setLastActionTime(String lastActionTime) {
+        this.lastActionTime = lastActionTime;
+    }
+
     public String getName() {
         return name;
     }

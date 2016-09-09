@@ -21,21 +21,13 @@ public class GroupService {
     }
 
     public List<Group> getAll() {
-        return api.withTransaction(em -> {
-            List<Group> groups = em.createQuery("from Group g", Group.class).getResultList();
-            groups.forEach(g -> Hibernate.initialize(g.getUsers()));
-            return groups;
-        });
+        return api.withTransaction(em ->
+                em.createQuery("from Group g", Group.class).getResultList());
     }
 
     public Optional<Group> get(String name) {
-        return api.withTransaction(em -> {
-            Optional<Group> group = Optional.ofNullable(em.find(Group.class, name));
-            if (group.isPresent()) {
-                Hibernate.initialize(group.get().getUsers());
-            }
-            return group;
-        });
+        return api.withTransaction(em ->
+                Optional.ofNullable(em.find(Group.class, name)));
     }
 
     public void create(Group order) {
@@ -53,7 +45,8 @@ public class GroupService {
     }
 
     public int delete(String name) {
-        return api.withTransaction(em -> em.createQuery("delete Group where name = :name")
+        return api.withTransaction(em ->
+                em.createQuery("delete Group where name = :name")
                 .setParameter("name", name)
                 .executeUpdate());
     }

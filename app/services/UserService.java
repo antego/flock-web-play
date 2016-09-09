@@ -7,6 +7,7 @@ import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -45,7 +46,11 @@ public class UserService {
     }
 
     public void update(User user) {
-        api.withTransaction(em -> em.merge(user));
+        api.withTransaction(em -> {
+            user.setLastActionTime(Instant.now().toString());
+            em.merge(user);
+            return null;
+        });
     }
 
     public int delete(String name) {
