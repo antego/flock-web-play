@@ -49,7 +49,9 @@ public class GroupController extends Controller {
     public Result create() {
         try {
             Group group = mapper.treeToValue(request().body().asJson(), Group.class);
-            if (!userService.get(group.getCreatedBy().getName()).isPresent()) {
+            if (group.getCreatedBy() == null ||
+                    group.getCreatedBy().getName() == null ||
+                    !userService.get(group.getCreatedBy().getName()).isPresent()) {
                 return new Result(422, HttpEntity.fromString("CreatedBy must be specified",
                         Charsets.UTF_8.toString()));
             }
@@ -69,9 +71,14 @@ public class GroupController extends Controller {
     }
 
     @BodyParser.Of(BodyParser.Json.class)
-    public Result update(String name) {
+    public Result update() {
         try {
             Group group = mapper.treeToValue(request().body().asJson(), Group.class);
+            if (group.getCreatedBy() == null || group.getCreatedBy().getName() == null) {
+                return new Result(422,
+                        HttpEntity.fromString("Can't remove group creator",
+                                Charsets.UTF_8.toString()));
+            }
             findUsersForGroup(group);
             if (!group.getUsers().stream()
                     .anyMatch(u -> group.getCreatedBy().getName().equals(u.getName()))) {

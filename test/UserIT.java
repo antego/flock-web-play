@@ -93,7 +93,7 @@ public class UserIT {
         assertEquals(2, groupService.getAll().size());
 
         Http.RequestBuilder request = new Http.RequestBuilder().method("PUT")
-                .bodyJson((JsonNode)mapper.valueToTree(user)).uri("/users/" + user.getName());
+                .bodyJson((JsonNode)mapper.valueToTree(user)).uri("/users");
         Result result = route(application, request);
 
         assertEquals(200, result.status());

@@ -40,6 +40,7 @@ public class GroupIT {
 
         Group group = TestObjectFactory.newGroup();
         group.setUsers(users);
+        group.setCreatedBy(user1);
 
         Http.RequestBuilder request = new Http.RequestBuilder().method("POST")
                 .bodyText(mapper.writeValueAsString(group))
@@ -62,16 +63,19 @@ public class GroupIT {
         Group group = TestObjectFactory.newGroup();
 
         GroupService groupService = application.injector().instanceOf(GroupService.class);
-        groupService.create(group);
-
         UserService userService = application.injector().instanceOf(UserService.class);
         User user1 = TestObjectFactory.newUser();
         User user2 = TestObjectFactory.newUser();
-        Set<User> users = getPersistedUsers(userService, user1, user2);
+        Set<User> users = getPersistedUsers(userService, user1);
+        group.setCreatedBy(user1);
+        group.setUsers(users);
+
+        groupService.create(group);
+        users.addAll(getPersistedUsers(userService, user2));
 
         group.setUsers(users);
         Http.RequestBuilder request = new Http.RequestBuilder().method("PUT")
-                .bodyJson((JsonNode)mapper.valueToTree(group)).uri("/groups/" + group.getName());
+                .bodyJson((JsonNode)mapper.valueToTree(group)).uri("/groups");
         Result result = route(application, request);
 
         assertEquals(200, result.status());

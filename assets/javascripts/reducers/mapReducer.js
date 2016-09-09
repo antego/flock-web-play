@@ -1,22 +1,15 @@
 export default function reducer(state={
-    fromPoint: null,
-    toPoint: null,
-    pickMode: "PICK_FROM",
-    newOrder: null,
+    refreshPeriodMillis: 1000,
+    users: [],
 }, action) {
 
     switch (action.type) {
-        case "PICK_FROM": {
-            return {...state, pickMode: "PICK_FROM"}
+        case "REFRESH_USERS": {
+            console.log("value: " + action.value);
+            return {...state, users: action.value}
         }
-        case "PICK_TO": {
-            return {...state, pickMode: "PICK_TO"}
-        }
-        case "FROM_POINT_PICKED": {
-            return {...state, fromPoint: action.value}
-        }
-        case "TO_POINT_PICKED": {
-            return {...state, toPoint: action.value}
+        case "SET_REFRESH_PERIOD": {
+            return {...state, refreshPeriodMillis: action.value}
         }
     }
 

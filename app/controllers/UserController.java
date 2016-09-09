@@ -58,7 +58,7 @@ public class UserController extends Controller {
     }
 
     @BodyParser.Of(BodyParser.Json.class)
-    public Result update(String name) {
+    public Result update() {
         try {
             User user = mapper.treeToValue(request().body().asJson(), User.class);
             findGroupsForUser(user);
