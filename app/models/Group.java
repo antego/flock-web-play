@@ -18,7 +18,7 @@ import java.util.Set;
 public class Group {
     @Id
     private String name;
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE) //fixme merge?
     private Set<User> users = new HashSet<>();
     @OneToOne
     private User createdBy;

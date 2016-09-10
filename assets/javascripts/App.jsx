@@ -2,39 +2,18 @@ import 'babel-polyfill'
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Map from './Map.jsx'
-import Create from './Create.jsx';
+import Login from './Login.jsx'
 import { Button, Panel, FormControl, FormGroup, Form } from 'react-bootstrap';
 import { Provider } from 'react-redux';
 import store from './store'
-import * as act from "./actions/actions"
+import { connect } from "react-redux"
 
-
+@connect((store) => {
+    return {
+        user: store.login.user,
+    };
+})
 export default class App extends React.Component {
-    // handleMapClick(e){
-    //     this.props.dispatch(act.mapClickFrom());
-    //     if (this.state.pickFromPnt) {
-    //         this.setState({fromPnt: e.latlng})
-    //     } else if (this.state.pickToPnt) {
-    //         this.setState({toPnt: e.latlng})
-    //     }
-    // }
-
-    // handleCreateOrder() {
-    //     this.props.dispatch(act.setPickToMode())
-    // }
-    //
-    // handleSubmitOrder(order) {
-    //     console.log(order);
-    //     this.setState(initialState);
-    // }
-    //
-    // handlePickFromPnt() {
-    //     this.setState({pickFromPnt: true, pickToPnt: false})
-    // }
-    //
-    // handlePickToPnt() {
-    //     this.setState({pickFromPnt: false, pickToPnt: true})
-    // }
 
     applyRefreshPeriod() {
         console.log(ReactDOM.findDOMNode(this.refs.refreshPeriodInput).value);
@@ -49,6 +28,7 @@ export default class App extends React.Component {
 
     render() {
         return (<div>
+                    {/*<Login />*/}
                     <div className="mapContainer">
                         <Map />
                     </div>

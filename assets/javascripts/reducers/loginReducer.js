@@ -2,7 +2,7 @@ export default function reducer(state={}
 , action) {
 
     switch (action.type) {
-        case "LOG_IN": {
+        case "REGISTER_USER": {
             return {...state, user: action.value}
         }
     }

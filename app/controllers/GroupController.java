@@ -52,7 +52,7 @@ public class GroupController extends Controller {
             if (group.getCreatedBy() == null ||
                     group.getCreatedBy().getName() == null ||
                     !userService.get(group.getCreatedBy().getName()).isPresent()) {
-                return new Result(422, HttpEntity.fromString("CreatedBy must be specified",
+                return new Result(422, HttpEntity.fromString("createdBy must be specified",
                         Charsets.UTF_8.toString()));
             }
             if (group.getUsers() == null ||

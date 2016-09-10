@@ -1,36 +1,38 @@
 import React from 'react';
-import { connect } from "react-redux"
-import { connect } from "react-redux"
+import {connect} from "react-redux"
+import {Modal, Form, Input,
+        Button, FormControl, ControlLabel,
+        FormGroup} from 'react-bootstrap';
+import * as act from "./actions/actions"
+import ReactDOM from 'react-dom';
 
 @connect((store) => {
     return {
-        user: store.user,
+        user: store.login.user,
     };
 })
-export default class App extends React.Component {
+export default class Login extends React.Component {
+    registerUser() {
+        let name = ReactDOM.findDOMNode(this.refs.userNameInput).value;
+        this.props.dispatch(act.registerUser({name: name}));
+    }
+
     render() {
-        return (<Modal
-                    show={!this.props.user}
-                    onHide={close}
-                    container={this}
-                    aria-labelledby="contained-modal-title"
-                >
-                    <Modal.Header closeButton>
-                        <Modal.Title id="contained-modal-title">Contained Modal</Modal.Title>
+        return (<Modal show={!this.props.user} onHide={this.close}>
+                    <Modal.Header closeButton={false}>
+                        <Modal.Title>Modal heading</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <Form bsStyle="inline" callback={this.handleLogin}>
-                            <Input name="email" type="email" placeholder="Email" required={true}/>
-                            <Input name="password" type="password" placeholder="Password / Blank"
-                                   required={true} minLength={5}/>
-                            <Button onClick={this.handleLogin} type="#" bsStyle="success">
-                                Log in / Recover Pass
-                            </Button>
-                        </Form>
+                        <FormGroup>
+                            <ControlLabel>User name</ControlLabel>
+                            <FormControl
+                                name="refreshPeriod"
+                                ref="userNameInput"
+                                type="text"
+                            />
+                        </FormGroup>
+                        <Button onClick={::this.registerUser} className="center-block">Close</Button>
                     </Modal.Body>
-                    <Modal.Footer>
-                        <Button onClick={close}>Close</Button>
-                    </Modal.Footer>
                 </Modal>)
     }
 }
