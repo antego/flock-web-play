@@ -1,19 +1,8 @@
 import 'babel-polyfill'
 import React from 'react';
-import { render } from 'react-dom';
-import {
-    Circle,
-    FeatureGroup,
-    LayerGroup,
-    LayersControl,
-    Map,
-    Marker,
-    Popup,
-    Rectangle,
-    TileLayer,
-    Polyline,
-} from 'react-leaflet';
-import { connect } from "react-redux"
+import {render} from 'react-dom';
+import {Map, CircleMarker, Popup, TileLayer, Polyline} from 'react-leaflet';
+import {connect} from "react-redux"
 import * as act from "./actions/actions"
 import axios from "axios"
 
@@ -21,24 +10,10 @@ const position = [47.2, 38.9];
 @connect((store) => {
     return {
         users: store.map.users,
-        refreshPeriodMillis: store.map.refreshPeriodMillis,
         traces: store.map.userTraces,
     };
 })
 export default class MyMap extends React.Component {
-    // handleMapClick(e) {
-    //     if (this.props.pickMode === "PICK_FROM") {
-    //         this.props.dispatch(act.fromPointSelected(e.latlng));
-    //     } else if (this.props.pickMode === "PICK_TO") {
-    //         this.props.dispatch(act.toPointSelected(e.latlng));
-    //     }
-    // }
-    // constructor() {
-    //     this.state = {
-    //         polylines: new Map(),
-    //     }
-    // }
-
     componentDidMount() {
         this.refreshIntervalId = setInterval(() => {
             axios.get('/users')
@@ -48,11 +23,17 @@ export default class MyMap extends React.Component {
               .catch((error) => {
                 console.log(error);
               });
-        }, this.props.refreshPeriodMillis);
+        }, 1000);
     }
 
     componentWillUnmount() {
         clearInterval(this.refreshIntervalId);
+    }
+
+    arrayClone(arr) {
+        return arr.map((arr) => {
+            return arr.slice();
+        });
     }
 
     render() {
@@ -61,19 +42,17 @@ export default class MyMap extends React.Component {
             if (Number.isNaN(position.lat) || Number.isNaN(position.lng)) {
                 return null
             }
-            return (<Marker position={position} key={i}>
+            return (<CircleMarker center={position} key={i} >
                         <Popup>
-                            <span>{user.name}</span>
+                            <span><b>{user.name}</b></span>
                         </Popup>
-                    </Marker>)
+                    </CircleMarker>)
         });
-        console.log(markers)
-        console.log(this.props.traces);
-        let polylines;
-        for (let array of this.props.traces.values()) {
-            console.log(array);
-            polylines += <Polyline latLngs={array} />
-        }
+
+        let polylines = Array.from(this.props.traces.values()).map((arr, i) => {
+            arr = ::this.arrayClone(arr);
+            return (<Polyline color='lime' positions={arr} key={i} />);
+        });
 
         return (<Map center={position} zoom={13} ref="map">
                     <TileLayer
@@ -84,6 +63,7 @@ export default class MyMap extends React.Component {
                     {markers}
                 </Map>);
     }
+
 }
 
 

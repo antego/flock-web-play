@@ -8,20 +8,24 @@ export default function reducer(state={
         case "REFRESH_USERS": {
             let traces = state.userTraces;
             action.value.forEach((user) => {
+                let newLat = Number.parseFloat(user.lat);
+                let newLng = Number.parseFloat(user.lng);
+                if (Number.isNaN(newLat) || Number.isNaN(newLng)) {
+                    return;
+                }
                 let trace = traces.get(user.name);
                 if (!trace) {
                     trace = [];
+                    traces.set(user.name, trace);
                 }
                 let lastLatLng = trace.length > 0 ? trace[trace.length - 1] : null;
-                if (trace.length === 0 || lastLatLng.lat !== user.lat || lastLatLng.lng !== user.lng) {
-                    trace.push({lat: user.lat, lng: user.lng});
+                if (trace.length === 0 || lastLatLng[0] !== newLat || lastLatLng[1] !== newLng) {
+                    trace.push([newLat, newLng]);
                 }
+
             });
 
             return {...state, users: action.value, userTraces: traces}
-        }
-        case "SET_REFRESH_PERIOD": {
-            return {...state, refreshPeriodMillis: action.value}
         }
     }
 
