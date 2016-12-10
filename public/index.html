@@ -2,13 +2,207 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.css" />
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css">
-    <link rel="stylesheet" href="styles/style.css">
+    <title>Flock - do not stray away! </title>
+    <script src="//cdn.peerjs.com/0.3/peer.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
+    <script src="javascripts/lodash.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.js"   integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA="   crossorigin="anonymous"></script>
 </head>
 <body>
-<div id="app"></div>
-<script src="/javascripts/app.bundle.js" type="text/javascript"></script>
+<div id="mapid" style="height: 400px"></div>
+<script>
+    var mymap = L.map('mapid').setView([55.70523, 37.46662], 16);
+    L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
+        maxZoom: 18,
+    }).addTo(mymap);
+    var markerLayer = L.layerGroup().addTo(mymap);
+    var myLatlng;
+    var clickedPopup = L.popup();
+    function onMapClick(e) {
+        clickedPopup
+                .setLatLng(e.latlng)
+                .setContent("You clicked the map at " + e.latlng.toString())
+                .openOn(mymap);
+    }
+    mymap.on('click', onMapClick);
+
+    var locationPopup = L.popup();
+    var locationProps = {
+        watch: true,
+        maximumAge: 2000
+    };
+    mymap.locate(locationProps);
+    function onLocationFound(locationEvent) {
+        myLatlng = locationEvent.latlng;
+        locationPopup
+                .setLatLng(myLatlng)
+                .setContent("Your position")
+                .openOn(mymap);
+        broadcastPosition(myLatlng);
+        console.log('New position with latlng: ' + myLatlng);
+    }
+    function onLocationError(errorEvent) {
+        console.log(errorEvent.message);
+    }
+    mymap.on('locationfound', onLocationFound);
+    mymap.on('locationerror', onLocationError);
+    var host = 'localhost';
+
+    var port = 9000;
+    var peer;
+    var waitingHelloConnections = [];
+    var peerConnections = {};
+    var peerMarkers = {};
+    var myPeerId;
+    var MESSAGE_TYPE = {
+        HELLO: 'HELLO',
+        POSITION: 'POSITION'
+    };
+    peer = new Peer({host: host, port: port, path: '/flock', debug: 3});
+
+
+    peer.on('open', function(id) {
+        myPeerId = id;
+        console.log('connected to server, our peer id is: ' + myPeerId);
+        connectToExistingPlayers();
+    });
+    peer.on('connection', function(conn) {
+        console.log('new connection');
+        conn.on('open', function () {
+            // add connection to the pool for future acknowledge
+            waitingHelloConnections.push(conn);
+            // swipe out not acknowledged connection
+            setTimeout(function () {
+                _.pull(waitingHelloConnections, conn);
+            }, 5000);
+            conn.on('data', handleMessage);
+            conn.on('close', getCloseHandler(conn));
+        });
+    });
+
+    function handleMessage(data) {
+        var type = MESSAGE_TYPE[data.type];
+        if (!type) {
+            console.error('unrecognised message: ' + data);
+            return;
+        }
+        handle(type, data);
+    }
+
+    function getCloseHandler(conn) {
+        function disposeMarker() {
+            peerConnections[conn.peer] = undefined;
+            removePeerMarker(conn.peer);
+            console.log('connection closed');
+        }
+        return disposeMarker;
+    }
+
+    function removePeerMarker(peerId) {
+        var markerAndDisposeJob = peerMarkers[peerId];
+        if (markerAndDisposeJob) {
+            markerAndDisposeJob.marker.remove();
+            peerMarkers[peerId] = undefined;
+            clearInterval(markerAndDisposeJob.disposeJob);
+        }
+    }
+
+    function connectToExistingPlayers () {
+        $.getJSON(window.location.protocol + '//' + host + ':' + port + '/flock/peerjs/peers', function (ps) {
+            _.each(ps, function (p) {
+                if (p === myPeerId) {
+                    return; // don't connect to self
+                }
+                connectToPlayer(p);
+            });
+        });
+    }
+
+    function connectToPlayer (id) {
+        if (!_.has(peerConnections, id)) {
+            console.log('connecting to peer ' + id);
+            var connection = peer.connect(id);
+            connection.on('open', function () {
+                peerConnections[id] = connection;
+                sendToPeer(id, MESSAGE_TYPE.HELLO, {});
+                if (myLatlng) {
+                    sendToPeer(id, MESSAGE_TYPE.POSITION, {latlng: myLatlng})
+                }
+                connection.on('data', handleMessage);
+                connection.on('close', getCloseHandler(connection));
+            })
+        }
+    }
+
+    function sendToPeer(id, messageType, data) {
+        var conn = peerConnections[id];
+        if (conn == null) {
+            console.log('unrecognised conn id: ' + id);
+        }
+        conn.send(_.extend(data, {
+            id: myPeerId,
+            type: messageType
+        }));
+    }
+
+    function handle(messageType, data) {
+        if (messageType === MESSAGE_TYPE.HELLO) {
+            handleHello(data);
+        } else if (messageType === MESSAGE_TYPE.POSITION) {
+            handlePosition(data);
+        }
+    }
+
+    function handleHello (data) {
+        console.log('hello from: ' + data.id);
+        var acceptedConnection = _.pullAllBy(waitingHelloConnections, {'peer': data.id}, 'peer');
+        if (acceptedConnection.length === 1) {
+            peerConnections[data.id] = acceptedConnection[0];
+            if (myLatlng) {
+                sendToPeer(data.id, MESSAGE_TYPE.POSITION, {latlng: myLatlng})
+            }
+        } else {
+            console.log('Not exact count of waiting connections' +
+                    acceptedConnection.length + ', should be 1');
+        }
+    }
+
+    // todo check data.id against connection id
+    function handlePosition (data) {
+        // create new marker and put it into marker pool if not created
+        // cancel old dispose job, register new marker dispose job
+        var marker;
+        if (peerMarkers[data.id] === undefined) {
+            marker = L.marker(data.latlng);
+            markerLayer.addLayer(marker);
+        } else {
+            marker = peerMarkers[data.id].marker;
+            marker.setLatLng(data.latlng);
+            clearTimeout(peerMarkers[data.id].disposeJob);
+        }
+        var markerDisposeJob = setTimeout(function () {
+            removePeerMarker(data.id)
+        }, 5000);
+        peerMarkers[data.id] = {marker: marker, disposeJob: markerDisposeJob};
+    }
+
+    function broadcastPosition(latlng) {
+        _.each(peerConnections, function(conn) {
+            if (!conn || !conn.open) {
+                console.log("Can't send position. Connection closed");
+                return;
+            } else {
+                console.log("Sending")
+                conn.send({
+                    id: myPeerId,
+                    type: MESSAGE_TYPE.POSITION,
+                    latlng: latlng
+                });
+            }
+        });
+    }
+</script>
 </body>
 </html>
